@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using apiUniversidade.Model;
+using apiUniversidade.Context;
 
 namespace apiUniversidade.Controllers
 {
@@ -11,36 +12,32 @@ namespace apiUniversidade.Controllers
     [Route("[controller]")]
     public class AlunoController : ControllerBase
     {
+        private readonly ILogger<AlunoController> _logger;
+        private readonly apiUniversidadeContext _context;
 
-        [HttpGet(Name = "aluno")]
-
-        public List<Aluno> GetAlunos()
+         public AlunoController(ILogger<AlunoController> logger, apiUniversidadeContext context)
         {
-            List<Aluno> a = new List<Aluno>();
-
-            Aluno a1 = new Aluno();
-            a1.ID = 1;
-            a1.Nome = "Ana";
-            a1.CPF = "333-333";
-            a1.dataNascimento = DateTime.Now;
-
-            Aluno a2 = new Aluno();
-            a2.ID = 2;
-            a2.Nome = "Maria";
-            a2.CPF = "222-222";
-            a2.dataNascimento = DateTime.Now;
-
-            Aluno a3 = new Aluno();
-            a3.ID = 3;
-            a3.Nome = "Matheus";
-            a3.CPF = "444-444";
-            a3.dataNascimento = DateTime.Now;
-
-            a.Add(a1);
-            a.Add(a2);
-            a.Add(a3);
-
-            return a;
+            _logger = logger;
+            _context = context;
         }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<Aluno>> Get()
+        {
+            var alunos = _context.Alunos.ToList();
+            if (alunos is null)
+                return NotFound();
+
+            return alunos;
+        }
+
+        [HttpPost]
+        public ActionResult Post(Aluno aluno){
+            _context.Alunos.Add(aluno);
+            _context.SaveChanges();
+
+            return new CreatedAtRouteResult("GetAluno", new { id = aluno.ID }, aluno); 
+        }
+
     }
 }
