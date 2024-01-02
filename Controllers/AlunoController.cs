@@ -7,22 +7,24 @@ using apiUniversidade.Model;
 using apiUniversidade.Context;
 using Microsoft.AspNetCore.Authorization;
 
+
 namespace apiUniversidade.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("[controller]")]
-    
-    public class AlunoController : ControllerBase 
+   
+    public class AlunoController : ControllerBase
     {
          private readonly ILogger<AlunoController> _logger;
         private readonly apiUniversidadeContext _context;
-
+       
         public AlunoController(ILogger<AlunoController> logger, apiUniversidadeContext context)
         {
             _logger = logger;
             _context = context;
         }
+
 
         [HttpGet]
         public ActionResult<IEnumerable<Aluno>> Get()
@@ -33,10 +35,12 @@ namespace apiUniversidade.Controllers
             return alunos;
         }
 
+
        [HttpPost]
         public ActionResult Post (Aluno aluno){
             _context.Alunos.Add(aluno);
             _context.SaveChanges();
+
 
             return new CreatedAtRouteResult ("GetAluno", new{id = aluno.ID}, aluno);
         }
@@ -47,32 +51,40 @@ namespace apiUniversidade.Controllers
             if(aluno is null)
                 return NotFound("Aluno não encontado.");
 
+
                 return aluno;
         }
+
 
         [HttpPut("{id:int}")]
         public ActionResult Put(int id, Aluno aluno){
             if(id != aluno.ID)
                 return BadRequest();
 
+
             _context.Entry(aluno).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             _context.SaveChanges();
 
+
             return Ok(aluno);
         }
+
 
         [HttpDelete("{id:int}")]
         public ActionResult Delete (int id){
             var aluno = _context.Alunos.FirstOrDefault(p => p.ID == id);
 
+
             if(aluno is null)
             return NotFound();
+
 
             _context.Alunos.Remove(aluno);
             _context.SaveChanges();
 
+
             return Ok(aluno);
         }
-        
+       
     }
 }
